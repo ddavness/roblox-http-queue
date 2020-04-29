@@ -1,0 +1,24 @@
+{
+  "name": "@rbxts/http-queue",
+  "version": "0.0.0",
+  "description": "A small library to queue requests for your different external services",
+  "main": "src/init.lua",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddavness/roblox-http-queue.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ddavness/roblox-http-queue/issues"
+  },
+  "homepage": "https://github.com/ddavness/roblox-http-queue#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "types": "types.d.ts",
+  "devDependencies": {
+    "@rbxts/types": "^1.0.353"
+  }
+}
