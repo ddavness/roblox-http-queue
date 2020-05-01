@@ -92,7 +92,7 @@ interface HttpResponse {
      * Whether the request to the server was successful. This is directly tied to the request itself.
      * It will be true if the status code is within the range of 200-299, false otherwise.
      */
-    readonly RequestSuccessful: boolean | undefined;
+    readonly RequestSuccessful: boolean;
 
     /**
      * The status code returned by the remote server.
