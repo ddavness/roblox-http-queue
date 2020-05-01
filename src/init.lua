@@ -8,5 +8,5 @@
 return {
     HttpRequestPriority = require(script.HttpRequestPriority),
     HttpRequest = require(script.HttpRequest),
-    HttpResponse = require(script.HttpResponse)
+    HttpQueue = require(script.HttpQueue)
 }
