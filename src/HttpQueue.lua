@@ -16,8 +16,13 @@ local HttpQueue = {}
 local newHttpQueueCheck = t.tuple(t.option(t.string), t.option(t.string), t.option(t.string), t.option(t.number))
 
 --[[**
-    Creates an HttpRequest.
-    
+    Creates an HttpQueue. It is a self-regulating queue for REST APIs that impose rate limits. When you push a request to the queue,
+    the queue will send the ones added first to the remote server (unless you specify a priority). The queue automatically handles
+    the rate limits in order to, as humanly as possible, respect the service's rate limits and Terms of Service.
+
+    A queue is NOT A SILVER BULLET NEITHER A GUARANTEE of not spamming invalid requests, though. Depending on your game's
+    playerbase/number of servers compared to the rate limit of the services, it might not scale well.
+
     @param [t:String|nil] retryAfterHeader The header the queue will look for if rate limits are exceeded. Defaults to "Retry-After"
     @param [t:String|nil] rateLimitCapHeader The header the queue will look for to determine the global rate limit. Not all services provide this header - and that's okay.
     @param [t:String|nil] availableRequestsHeader The header the queue will look for to determine the available request quota. Not all services provide this header - and that's okay.
