@@ -178,8 +178,23 @@ interface HttpQueueConstructor {
     ): HttpQueue;
 }
 
+// Export type guards
+declare function isHttpRequest(obj: any): obj is HttpRequest;
+declare function isHttpRequestPriority(obj: any): obj is HttpRequestPriority;
+declare function isHttpResponse(obj: any): obj is HttpResponse;
+declare function isHttpQueue(obj: any): obj is HttpQueue;
+
 declare const HttpRequest: new () => HttpRequestConstructor;
 declare const HttpQueue: new () => HttpQueueConstructor;
 declare const HttpRequestPriority: HttpRequestPriority;
-declare const HttpResponse: HttpResponse;
-export { HttpRequest, HttpResponse, HttpRequestPriority, HttpQueue };
+
+export {
+    HttpRequest,
+    HttpResponse,
+    HttpRequestPriority,
+    HttpQueue,
+    isHttpRequest,
+    isHttpRequestPriority,
+    isHttpResponse,
+    isHttpQueue,
+};

@@ -5,8 +5,14 @@
     SPDX-License-Identifier: MIT
 ]]
 
-return {
+local exports = {
     HttpRequestPriority = require(script.HttpRequestPriority),
     HttpRequest = require(script.HttpRequest),
     HttpQueue = require(script.HttpQueue)
 }
+
+for name, guard in pairs(require(script.TypeGuards)) do
+    exports[name] = guard
+end
+
+return exports
