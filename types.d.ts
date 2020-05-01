@@ -161,7 +161,7 @@ interface HttpQueueConstructor {
      *
      * @param retryAfterHeader The header the queue will look for if rate limits are exceeded.
      * Defaults to "Retry-After"
-     * @param rateLimitCapHeader The header the queue will look for to determin the global rate limit.
+     * @param rateLimitCapHeader The header the queue will look for to determine the global rate limit.
      * Not all services provide this header - and that's okay.
      * @param availableRequestsHeader The header the queue will look for to determine the available request quota.
      * Not all services provide this header - and that's okay.
