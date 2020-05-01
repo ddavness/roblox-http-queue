@@ -6,6 +6,7 @@
 ]]
 
 local deps = require(script.Parent.DependencyLoader)
+local newHttpResponse = require(script.Parent.HttpResponse)
 local HttpService, Promise, t = deps.HttpService, deps.Promise, deps.t
 
 local HttpRequest = {}
@@ -48,7 +49,16 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
     **--]]
     function httpRequest:AwaitSend()
         -- Placeholder
-        print(self)
+        local success, result = pcall(function()
+            HttpService:RequestAsync({
+                Url = endpoint,
+                Method = Method,
+                Headers = Headers,
+                Body = Body
+            })
+        end)
+
+        return newHttpResponse(success, result)
     end
 
     --[[**
@@ -57,9 +67,13 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
         @returns [t:Promise<HttpResponse>] A promise to a HttpResponse that is resolved when it is available.
     **--]]
     function httpRequest:Send()
-        -- Placeholder
-        return Promise.async(function(resolve, _)
-            resolve(self:AwaitSend())
+        return Promise.async(function(resolve, reject)
+            local response = self:AwaitSend()
+            if response.RequestSuccessful then
+                resolve(response)
+            else
+                reject(response)
+            end
         end)
     end
 
