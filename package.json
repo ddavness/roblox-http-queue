@@ -18,6 +18,10 @@
     "access": "public"
   },
   "types": "types.d.ts",
+  "dependencies": {
+    "@rbxts/types": "1.0.353",
+    "@rbxts/t": "^1.2.9"
+  },
   "devDependencies": {
     "@rbxts/types": "^1.0.353",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
