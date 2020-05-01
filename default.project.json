@@ -1,0 +1,12 @@
+{
+    "name": "http-queue",
+    "tree": {
+        "$className": "DataModel",
+        "ServerScriptService": {
+            "$className": "ServerScriptService",
+            "http-queue": {
+                "$path": "src"
+            }
+        }
+    }
+}
