@@ -24,4 +24,6 @@ else
     dependencies.t = require(script.t)
 end
 
+dependencies.HttpService = game:GetService("HttpService")
+
 return dependencies
