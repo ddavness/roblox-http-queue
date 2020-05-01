@@ -10,7 +10,7 @@ return setmetatable({
     Prioritary = 2,
     Normal = 3
 }, {
-    __index = function(i)
-        error(tostring(i) .. " is not a valid HttpRequestPriority!")
+    __index = function(_, index)
+        error(tostring(index) .. " is not a valid HttpRequestPriority!")
     end
 })
