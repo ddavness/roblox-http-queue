@@ -74,6 +74,9 @@ interface HttpRequestConstructor {
     ): HttpRequest;
 }
 
+/**
+ * Defines the server's response to an Http request.
+ */
 interface HttpResponse {
     /**
      * Whether the connection to the remote server was successful. This is related to HttpService itself.
@@ -114,3 +117,69 @@ interface HttpResponse {
      */
     readonly Body: string;
 }
+
+/**
+ * A self-regulating queue for REST APIs that impose rate limits.
+ * When you push a request to the queue, the queue will send the ones added first to the
+ * remote server (unless you specify a priority). The queue automatically handles the rate limits
+ * in order to, as humanly as possible, respect the service's rate limits and Terms of Service.
+ *
+ * A queue is NOT A SILVER BULLET NEITHER A GUARANTEE of not spamming invalid requests, though.
+ * Depending on your game's playerbase/number of servers compared to the rate limit of the services,
+ * it might not scale well.
+ */
+interface HttpQueue {
+    /**
+     * Pushes a request to the queue to be sent whenever possible.
+     *
+     * @param request The request to be sent.
+     * @param priority The priority of the request in relation to other requests in the same queue.
+     *
+     * @returns A promise to a HttpResponse that is resolved when it is available.
+     */
+    Push(request: HttpRequest, priority?: HttpRequestPriority): Promise<HttpResponse>;
+
+    /**
+     * @yields Pushes a request to the queue to be sent whenever possible.
+     *
+     * @param request The request to be sent.
+     * @param priority The priority of the request in relation to other requests in the same queue.
+     *
+     * @returns The server's response to the request.
+     */
+    AwaitPush(request: HttpRequest, priority?: HttpRequestPriority): HttpResponse;
+
+    /**
+     * Determines how many unsent requests there are in the queue
+     */
+    QueueSize(): number;
+}
+
+interface HttpQueueConstructor {
+    /**
+     * @constructor Creates an HttpQueue
+     *
+     * @param retryAfterHeader The header the queue will look for if rate limits are exceeded.
+     * Defaults to "Retry-After"
+     * @param rateLimitCapHeader The header the queue will look for to determin the global rate limit.
+     * Not all services provide this header - and that's okay.
+     * @param availableRequestsHeader The header the queue will look for to determine the available request quota.
+     * Not all services provide this header - and that's okay.
+     * @param reserveSlots How many request slots to allocate ahead of time. This will not impose a limit
+     * to the number of requests you can push to the queue - it's purely for performance reasons.
+     *
+     * @returns An empty HttpQueue
+     */
+    new (
+        retryAfterHeader?: string,
+        rateLimitCapHeader?: string,
+        availableRequestsHeader?: string,
+        reserveSlots?: number | undefined,
+    ): HttpQueue;
+}
+
+declare const HttpRequest: new () => HttpRequestConstructor;
+declare const HttpQueue: new () => HttpQueueConstructor;
+declare const HttpRequestPriority: HttpRequestPriority;
+declare const HttpResponse: HttpResponse;
+export { HttpRequest, HttpResponse, HttpRequestPriority, HttpQueue };
