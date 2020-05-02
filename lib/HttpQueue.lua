@@ -109,7 +109,7 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
                 if not prioritaryQueue.First then
                     prioritaryQueue.Last = nil
                 end
-            endi
+            end
 
             while regularQueue.First do
                 while interrupted or availableWorkers == 0 do
