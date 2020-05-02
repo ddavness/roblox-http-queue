@@ -11,6 +11,13 @@ local HttpService, Promise, t = deps.HttpService, deps.Promise, deps.t
 
 local HttpRequest = {}
 
+local requestCheck = t.strict(
+    t.tuple(t.string, t.string, t.optional(t.string),
+        t.optional(t.map(t.string, t.union(t.string, t.number, t.boolean))),
+        t.optional(t.map(t.string, t.string))
+    )
+)
+
 --[[**
     Creates an HttpRequest.
     
@@ -21,12 +28,7 @@ local HttpRequest = {}
     @param [t:Dictionary<string,string>|nil] Headers Additional headers to be included in the request
 **--]]
 function HttpRequest.new(Url, Method, Body, Query, Headers)
-    local check = t.tuple(t.string, t.string, t.optional(t.string),
-        t.optional(t.map(t.string, t.union(t.string, t.number, t.boolean))),
-        t.optional(t.map(t.string, t.string))
-    )
-
-    assert(check(Url, Method, Body, Query, Headers))
+    requestCheck(Url, Method, Body, Query, Headers)
 
     -- Now we can assume type-safety!
     local endpoint = Url
