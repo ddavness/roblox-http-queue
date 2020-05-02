@@ -52,7 +52,7 @@ function dataUtils.newMutex()
     end
 
     function mutex.unlock()
-        if #yielded != 0 then
+        if #yielded ~= 0 then
             coroutine.resume(table.remove(yielded, 1))
         else
             locked = false

@@ -52,11 +52,11 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
     function httpRequest:AwaitSend()
         -- Placeholder
         local success, result = pcall(function()
-            HttpService:RequestAsync({
+            return HttpService:RequestAsync({
                 Url = endpoint,
                 Method = Method,
                 Headers = Headers,
-                Body = Body
+                Body = (Method == "GET" or Method == "HEAD") and nil or Body
             })
         end)
 
@@ -71,10 +71,11 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
     function httpRequest:Send()
         return Promise.async(function(resolve, reject)
             local response = self:AwaitSend()
+            print(response.ConnectionSuccessful)
             if response.ConnectionSuccessful then
                 resolve(response)
             else
-                reject(response)
+                reject(response.StatusMessage)
             end
         end)
     end

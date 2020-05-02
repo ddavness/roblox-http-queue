@@ -11,9 +11,9 @@ local function newHttpResponse(success, result)
     HttpResponse.ConnectionSuccessful = success
     HttpResponse.RequestSuccessful = success and result.Success
     HttpResponse.StatusCode = success and result.StatusCode or 0
-    HttpResponse.StatusMessage = success and (result.StatusCode .. " " .. result.StatusMessage) or "0 " .. result
+    HttpResponse.StatusMessage = success and (result.StatusCode .. " " .. result.StatusMessage) or result
     HttpResponse.Headers = success and result.Headers or {}
-    HttpResponse.Body = success and (result.Body or "") or ""
+    HttpResponse.Body = success and (result.Body or "") or nil
 
     return setmetatable(HttpResponse, {
         __metatable = "HttpResponse",

@@ -15,8 +15,8 @@ local Promise, t = deps.Promise, deps.t
 local HttpQueue = {}
 
 local validInt = t.intersection(t.integer, t.numberPositive)
-local newHttpQueueCheck = t.strict(t.tuple(t.option(t.string), t.option(t.string), t.option(t.string), t.option(validInt), t.option(validInt)))
-local pushCheck = t.strict(t.tuple(guards.isHttpRequest, t.option(guards.isHttpRequestPriority)))
+local newHttpQueueCheck = t.strict(t.tuple(t.optional(t.string), t.optional(t.string), t.optional(t.string), t.optional(validInt), t.optional(validInt)))
+local pushCheck = t.strict(t.tuple(guards.isHttpRequest, t.optional(guards.isHttpRequestPriority)))
 
 --[[**
     Creates an HttpQueue. It is a self-regulating queue for REST APIs that impose rate limits. When you push a request to the queue,
