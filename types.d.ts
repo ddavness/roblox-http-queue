@@ -167,6 +167,7 @@ interface HttpQueueConstructor {
      * Not all services provide this header - and that's okay.
      * @param reserveSlots How many request slots to allocate ahead of time. This will not impose a limit
      * to the number of requests you can push to the queue - it's purely for performance reasons.
+     * @param simultaneousSendCap How many requests should be sent at the same time (maximum). Defaults to 10.
      *
      * @returns An empty HttpQueue
      */
@@ -175,6 +176,7 @@ interface HttpQueueConstructor {
         rateLimitCapHeader?: string,
         availableRequestsHeader?: string,
         reserveSlots?: number | undefined,
+        simultaneousSendCap?: number | undefined,
     ): HttpQueue;
 }
 
