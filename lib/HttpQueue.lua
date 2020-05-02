@@ -43,35 +43,38 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
         Available = availableRequestsHeader
     }
 
-    local mutex = datautil.newMutex()
+    -- local mutex = datautil.newMutex()
 
     local prioritaryQueue = {}
     local regularQueue = {}
-    if reserveSlots then
-        prioritaryQueue = table.create(reserveSlots)
-        regularQueue = table.create(reserveSlots)
-    end
 
     local queueSize = 0
 
-    local queueExecutor = coroutine.wrap(function()
+    local queueExecutor = coroutine.create(function()
         local interrupted = false
         local waiting = nil
         local availableWorkers = simultaneousSendCap or 10
 
         local function sendNode(node)
             node.Data.Request:Send():andThen(function(response)
-                if response.StatusCode == 429 or response.StatusCode == 503 then
-                    mutex.unlock()
+                if response.StatusCode == 429 then
+                    -- mutex.unlock()
                     interrupted = true
-                    wait(response.Headers[headers.RetryAfter] or response.Headers["Retry-After"])
+                    --local interval = response.Headers[headers.RetryAfter] or response.Headers["Retry-After"]
+                    for i, v in pairs (response.Headers) do
+                        print(" * ", i, v)
+                    end
+                    -- warn("Request throttled! Waiting for " .. interval .. " seconds.")
+                    wait(10)
                     interrupted = false
                     sendNode(node) -- try again!
                 else
                     coroutine.resume(node.Data.Callback, response)
 
                     -- Resolve the request
-                    node.Next.Prev = nil
+                    if node.Next then
+                        node.Next.Prev = nil
+                    end
                     node.Next = nil
 
                     -- Release resources
@@ -87,12 +90,15 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
 
         while true do
             -- Do the prioritary queue
-            mutex.lock()
+            warn("IM WOKE!")
             while prioritaryQueue.First do
                 while interrupted or availableWorkers == 0 do
                     waiting = coroutine.running()
                     coroutine.yield()
+                    print(">>>> ", interrupted, availableWorkers)
                 end
+
+                print(">>>> ", interrupted, availableWorkers)
 
                 local node = prioritaryQueue.First
                 availableWorkers = availableWorkers - 1
@@ -100,11 +106,34 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
                 sendNode(node)
 
                 prioritaryQueue.First = node.Next
-            end
+                if not prioritaryQueue.First then
+                    prioritaryQueue.Last = nil
+                end
+            endi
 
-            if interrupted then
-                break
+            while regularQueue.First do
+                while interrupted or availableWorkers == 0 do
+                    waiting = coroutine.running()
+                    coroutine.yield()
+                    print(">>>> OUT OF YIELD ", interrupted, availableWorkers)
+                end
+
+                print(">>>> ", interrupted, availableWorkers)
+
+                local node = regularQueue.First
+                warn(node)
+                availableWorkers = availableWorkers - 1
+
+                sendNode(node)
+
+                regularQueue.First = node.Next
+                if not regularQueue.First then
+                    regularQueue.Last = nil
+                end
             end
+            -- mutex.unlock()
+            warn("Sleeping...")
+            coroutine.yield()
         end
     end)
 
@@ -124,8 +153,6 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
             end
         end)
 
-        mutex.lock()
-
         if not priority or priority == Priority.Normal then
             datautil.addNodeToLast(datautil.newLLNode(requestBody), regularQueue)
         elseif priority == Priority.Prioritary then
@@ -135,9 +162,8 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
         end
         queueSize = queueSize + 1
 
-        mutex.unlock()
-
-        queueExecutor()
+        print(coroutine.status(queueExecutor))
+        coroutine.resume(queueExecutor)
         return promise
     end
 

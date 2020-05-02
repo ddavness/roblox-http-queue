@@ -37,7 +37,9 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
         for i, v in pairs (Query) do
             queryString = queryString .. i .. "=" .. tostring(v) .. "&"
         end
-        endpoint = endpoint .. queryString:sub(-2)
+        endpoint = endpoint .. queryString:sub(1, -2)
+    else
+        print("NO QUERY PROVIDED")
     end
 
     local httpRequest = {}

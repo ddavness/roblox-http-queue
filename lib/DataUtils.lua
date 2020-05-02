@@ -30,7 +30,7 @@ function dataUtils.addNodeToLast(node, root)
         root.Last = node
     else
         root.Last.Next = node
-        node.Prev = root.First
+        node.Prev = root.Last
         node.Next = nil
         root.Last = node
     end

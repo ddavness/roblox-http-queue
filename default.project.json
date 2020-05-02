@@ -4,8 +4,20 @@
         "$className": "DataModel",
         "ServerScriptService": {
             "$className": "ServerScriptService",
-            "http-queue": {
-                "$path": "src"
+            "httpqueue": {
+                "$path": "lib",
+                "DependencyLoader": {
+                    "$path": "DependencyLoader",
+                    "Promise": {
+                        "$path": "vendor/Promise/lib/init.lua"
+                    },
+                    "t": {
+                        "$path": "vendor/t/lib/init.lua"
+                    }
+                }
+            },
+            "tests": {
+                "$path": "runtime-tests"
             }
         }
     }
