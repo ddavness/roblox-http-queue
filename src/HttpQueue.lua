@@ -5,15 +5,19 @@
     SPDX-License-Identifier: MIT
 ]]
 
-local HttpRequest = require(script.Parent.HttpRequest)
-local HttpRequestPriority = require(script.Parent.HttpRequestPriority)
+local Priority = require(script.Parent.HttpRequestPriority)
+local datautil = require(script.Parent.DataUtils)
+local guards = require(script.Parent.TypeGuards)
 local deps = require(script.Parent.DependencyLoader)
 
 local Promise, t = deps.Promise, deps.t
 
 local HttpQueue = {}
 
-local newHttpQueueCheck = t.tuple(t.option(t.string), t.option(t.string), t.option(t.string), t.option(t.number))
+local newHttpQueueCheck = t.strict(t.tuple(t.option(t.string), t.option(t.string), t.option(t.string), t.option(t.number)))
+local pushCheck = t.strict(t.tuple(guards.isHttpRequest, t.option(guards.isHttpRequestPriority)))
+
+
 
 --[[**
     Creates an HttpQueue. It is a self-regulating queue for REST APIs that impose rate limits. When you push a request to the queue,
@@ -30,8 +34,8 @@ local newHttpQueueCheck = t.tuple(t.option(t.string), t.option(t.string), t.opti
 **--]]
 function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
                        availableRequestsHeader, reserveSlots)
-    assert(newHttpQueueCheck(retryAfterHeader, rateLimitCapHeader,
-        availableRequestsHeader, reserveSlots))
+    newHttpQueueCheck(retryAfterHeader, rateLimitCapHeader,
+        availableRequestsHeader, reserveSlots)
 
     local headers = {
         RetryAfter = retryAfterHeader or "Retry-After",
@@ -39,8 +43,40 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
         Available = availableRequestsHeader
     }
 
+    local mutex = datautil.newMutex()
     local prioritaryQueue = {}
     local regularQueue = {}
+
+    local queueExecutor = coroutine.wrap(function()
+        local interrupted = false
+        while true do
+            -- Do the prioritary queue
+            mutex.lock()
+            while prioritaryQueue.First do
+                local node = prioritaryQueue.First
+
+                node.Data.Request:Send():andThen(function(response)
+                    if response.StatusCode == 429 or response.StatusCode == 503 then
+                        mutex.unlock()
+                        interrupted = true
+                        wait(response.Headers[headers.RetryAfter] or response.Headers["Retry-After"])
+                        break
+                    else
+                        coroutine.resume(node.Data.Callback, response)
+                    end
+                end)
+
+                -- Resolve the request
+                node.Next.Prev = nil
+                prioritaryQueue.First = node.Next
+                node.Next = nil
+            end
+
+            if interrupted then
+                break
+            end
+        end
+    end)
 
     if reserveSlots then
         prioritaryQueue = table.create(reserveSlots)
@@ -48,6 +84,45 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
     end
 
     local httpQueue = {}
+
+    function httpQueue:Push(request, priority)
+        pushCheck(request, priority)
+
+        local requestBody = {Request = request}
+        local promise = Promise.async(function(resolve, reject)
+            requestBody.Callback = coroutine.running()
+            local response = coroutine.yield()
+            if response.ConnectionSuccessful then
+                resolve(response)
+            else
+                reject(response)
+            end
+        end)
+
+        mutex.lock()
+
+        if not priority or priority == Priority.Normal then
+            datautil.addNodeToLast(datautil.newLLNode(requestBody), regularQueue)
+        elseif priority == Priority.Prioritary then
+            datautil.addNodeToLast(datautil.newLLNode(requestBody), prioritaryQueue)
+        elseif priority == Priority.First then
+            datautil.addNodeToFirst(datautil.newLLNode(requestBody), prioritaryQueue)
+        end
+
+        mutex.unlock()
+
+        queueExecutor()
+        return promise
+    end
+
+    function httpQueue:AwaitPush(request, priority)
+        local _, response = self:Push(request, priority):await()
+        return response
+    end
+
+    function httpQueue:QueueSize()
+        return #prioritaryQueue + #regularQueue
+    end
 
     return setmetatable(httpQueue, {
         __metatable = "HttpQueue",
