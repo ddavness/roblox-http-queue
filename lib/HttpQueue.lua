@@ -52,7 +52,7 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
 
     local queueExecutor = coroutine.create(function()
         local interrupted = false
-        local waiting = nil
+        local main = coroutine.running()
         local availableWorkers = simultaneousSendCap or 10
 
         local function sendNode(node)
@@ -80,9 +80,8 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
                     -- Release resources
                     queueSize = queueSize - 1
                     availableWorkers = availableWorkers + 1
-                    if waiting then
-                        coroutine.resume(waiting)
-                        waiting = nil
+                    if coroutine.status(main) == "suspended" then
+                        coroutine.resume(main)
                     end
                 end
             end)
@@ -93,7 +92,6 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
             warn("IM WOKE!")
             while prioritaryQueue.First do
                 while interrupted or availableWorkers == 0 do
-                    waiting = coroutine.running()
                     coroutine.yield()
                     print(">>>> ", interrupted, availableWorkers)
                 end
@@ -113,7 +111,6 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
 
             while regularQueue.First do
                 while interrupted or availableWorkers == 0 do
-                    waiting = coroutine.running()
                     coroutine.yield()
                     print(">>>> OUT OF YIELD ", interrupted, availableWorkers)
                 end
