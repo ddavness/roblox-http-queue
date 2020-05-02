@@ -69,7 +69,7 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
     function httpRequest:Send()
         return Promise.async(function(resolve, reject)
             local response = self:AwaitSend()
-            if response.RequestSuccessful then
+            if response.ConnectionSuccessful then
                 resolve(response)
             else
                 reject(response)
