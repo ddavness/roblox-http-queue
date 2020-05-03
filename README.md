@@ -1,9 +1,114 @@
 # Roblox Http Queue
 
-A small library to queue requests for your different external services. It automatically handles questions like service throttling, rate limiting, servers down, etc.
+## Current version: `v1.0.0-rc.1`
 
-You can use this project according to the terms of the MIT license.
+Writing code to make requests is simple, and maybe fun. Writing code that gracefully handles everything that can go wrong in a request... Well, that's a boring thing to do.
 
-## Installation (TBD)
+This library is intended to help easing this by, in particular, handling servers that impose rate limits. Writing code to handle that and make sure every request we make is accepted<b>*</b> by the server and is not lost.
 
-## Usage (TBD)
+This project is powered by [evaera's Promise implementation](https://github.com/evaera/roblox-lua-promise) and [Osyris' **t** typechecking library](https://github.com/osyrisrblx/t).
+
+You can use this library according to the terms of the MIT license.
+
+<b>*</b> <small>For *accepted* I mean "not rate-limited". I cannot make guarantees that the service will not refuse to process the request due to, for example, invalid tokens or permissions.</small>
+
+## Installation
+
+### GitHub Releases
+
+Just grab the `.rbxmx` file from the releases page and drop into your project - as simple as that!
+
+### Roblox-TS users
+
+Use `npm`:
+
+```
+npm install @rbxts/http-queue
+```
+
+## Usage
+
+Require the module:
+
+```lua
+local Http = require(game:GetService("ServerScriptService").HttpQueue)
+```
+
+Create a request and send it:
+
+```lua
+local request = Http.HttpRequest.new("https://some.website.com/", "GET", nil, {auth = "im very cool", cool = true})
+-- Actual Request URL is https://some.website.com/?auth=im very cool&cool=true
+
+-- The :Send() method returns a Promise that resolves to a response!
+request:Send():andThen(function(response)
+    print(response.Body)
+end):catch(function(err)
+    print("ERROR!", err)
+end)
+
+-- Do some work while we wait for the response to arrive
+
+-- If you want to yield the script until the response arrives
+local response = request:AwaitSend()
+```
+
+This is cool and all, but we can make this more interesting. Let's say you want to use Trello in your application. Unfortunately, the rate limiting of Trello is very tight (10 requests per 10 seconds per token for Roblox clients).
+
+Instead of worrying about it yourself, you can delegate the responsability of dealing with the rate limits to a queue.
+
+```lua
+local TrelloQueue = Http.HttpQueue.new({
+    retryAfter = {cooldown = 10} -- If rate limited, retry in 10 seconds
+    maxSimultaneousSendOperations = 10 -- Don't send more than 10 requests at a time
+})
+
+-- Let's change the name to a Trello board, 1000 times (don't do this at home!)
+for i = 1, 1000 do
+    local request = Http.HttpRequest.new("https://api.trello.com/1/boards/5d6f8ec6764c2112a27e3d12", "PUT", nil, {
+        key = "Your developer key",
+        token = "Your developer token",
+        name = "Your board's new name (" .. tostring(i) ..")"
+    }))
+
+    TrelloQueue:Push(request):andThen(function(response)
+        -- This will never print "429 Too Many Requests"
+        print(response.StatusMessage)
+    end)
+end
+
+-- Do some work while we wait for the response to arrive
+
+-- If you want to yield the script until the response comes in:
+local response = TrelloQueue:AwaitPush(request)
+```
+
+The queue works on a "first come, first serve" basis. This means that requests being pushed first will be dealt with first by the queue. (**HOWEVER, this doesn't mean the responses will arrive in order!**)
+
+You can override that behavior by passing a `priority` parameter to the `:Push()` or `:AwaitPush()` methods. There are three options available:
+
+`HttpRequestPriority.Normal` - the default priority. The request is pushed to the back of the regular queue.
+
+`HttpRequestPriority.Prioritary` - The request is pushed to the back of the prioritary queue, that is done by the queue runner before the regular queue.
+
+`HttpRequestPriority.First` - The request is pushed to the front of the prioritary queue.
+
+**NOTE:** The priority features should be used sparingly.
+
+**Example:**
+
+```lua
+TrelloQueue:Push(request, Http.HttpRequestPriority.Prioritary)
+```
+
+## Type Guards
+
+This library also comes with type guard functions that allow you to check whether a value is actually what you want:
+
+`isHttpRequest(value)`
+
+`isHttpRequestPriority(value)`
+
+`isHttpResponse(value)`
+
+`isHttpQueue(value)`
