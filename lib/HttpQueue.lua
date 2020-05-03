@@ -150,6 +150,14 @@ function HttpQueue.new(options)
 
     local httpQueue = {}
 
+    --[[**
+        Pushes a request to the queue to be sent whenever possible.
+
+        @param [t:HttpRequest] request The request to be sent.
+        @param [t:HttpRequestPriority] priority The priority of the request in relation to other requests in the same queue.
+
+        @returns [t:Promise<HttpResponse>] A promise to a HttpResponse that is resolved when it is available.
+    **--]]
     function httpQueue:Push(request, priority)
         pushCheck(request, priority)
 
@@ -177,11 +185,22 @@ function HttpQueue.new(options)
         return promise
     end
 
+    --[[**
+        Pushes a request to the queue to be sent whenever possible.
+
+        @param [t:HttpRequest] request The request to be sent.
+        @param [t:HttpRequestPriority] priority The priority of the request in relation to other requests in the same queue.
+
+        @returns [t:HttpResponse] The server's response to the request.
+    **--]]
     function httpQueue:AwaitPush(request, priority)
         local _, response = self:Push(request, priority):await()
         return response
     end
 
+    --[[**
+        @returns [t:number] The number of unsent requests in the queue.
+    **--]]
     function httpQueue:QueueSize()
         return queueSize
     end
