@@ -36,30 +36,4 @@ function dataUtils.addNodeToLast(node, root)
     end
 end
 
--- Pseudo-Mutex
-function dataUtils.newMutex()
-    local yielded = {}
-    local locked = false
-    local mutex = {}
-
-    function mutex.lock()
-        if not locked then
-            locked = true
-        else
-            table.insert(yielded, coroutine.running())
-            coroutine.yield()
-        end
-    end
-
-    function mutex.unlock()
-        if #yielded ~= 0 then
-            coroutine.resume(table.remove(yielded, 1))
-        else
-            locked = false
-        end
-    end
-
-    return mutex
-end
-
 return dataUtils

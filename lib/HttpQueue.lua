@@ -105,6 +105,7 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
             end
 
             if restart then
+                -- LANGUAGE EXTENSION: LUAU SUPPORTS CONTINUE
                 continue
             end
 
