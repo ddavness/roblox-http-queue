@@ -60,11 +60,6 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
                 if response.StatusCode == 429 then
                     -- mutex.unlock()
                     interrupted = true
-                    --local interval = response.Headers[headers.RetryAfter] or response.Headers["Retry-After"]
-                    for i, v in pairs (response.Headers) do
-                        print(" * ", i, v)
-                    end
-                    -- warn("Request throttled! Waiting for " .. interval .. " seconds.")
                     wait(10)
                     interrupted = false
                     sendNode(node) -- try again!
@@ -89,14 +84,10 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
 
         while true do
             -- Do the prioritary queue
-            warn("IM WOKE!")
             while prioritaryQueue.First do
                 while interrupted or availableWorkers == 0 do
                     coroutine.yield()
-                    print(">>>> ", interrupted, availableWorkers)
                 end
-
-                print(">>>> ", interrupted, availableWorkers)
 
                 local node = prioritaryQueue.First
                 availableWorkers = availableWorkers - 1
@@ -112,13 +103,9 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
             while regularQueue.First do
                 while interrupted or availableWorkers == 0 do
                     coroutine.yield()
-                    print(">>>> OUT OF YIELD ", interrupted, availableWorkers)
                 end
 
-                print(">>>> ", interrupted, availableWorkers)
-
                 local node = regularQueue.First
-                warn(node)
                 availableWorkers = availableWorkers - 1
 
                 sendNode(node)
@@ -128,8 +115,7 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
                     regularQueue.Last = nil
                 end
             end
-            -- mutex.unlock()
-            warn("Sleeping...")
+
             coroutine.yield()
         end
     end)
@@ -159,7 +145,6 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
         end
         queueSize = queueSize + 1
 
-        print(coroutine.status(queueExecutor))
         coroutine.resume(queueExecutor)
         return promise
     end

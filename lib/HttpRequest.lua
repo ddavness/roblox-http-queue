@@ -38,8 +38,6 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
             queryString = queryString .. i .. "=" .. tostring(v) .. "&"
         end
         endpoint = endpoint .. queryString:sub(1, -2)
-    else
-        print("NO QUERY PROVIDED")
     end
 
     local httpRequest = {}
@@ -73,7 +71,6 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
     function httpRequest:Send()
         return Promise.async(function(resolve, reject)
             local response = self:AwaitSend()
-            print(response.ConnectionSuccessful)
             if response.ConnectionSuccessful then
                 resolve(response)
             else
