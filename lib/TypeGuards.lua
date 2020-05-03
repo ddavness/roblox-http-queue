@@ -17,13 +17,11 @@ guards.isHttpRequest = t.intersection(t.strictInterface({
     return getmetatable(o) == "HttpRequest"
 end)
 
-guards.isHttpRequestPriority = t.number --[[t.intersection(t.strictInterface({
-    Normal = t.number,
-    Prioritary = t.number,
-    First = t.number
+guards.isHttpRequestPriority = t.intersection(t.strictInterface({
+    Value = t.number,
 }), function(o)
     return getmetatable(o) == "HttpRequestPriority"
-end)]]
+end)
 
 guards.isHttpResponse = t.intersection(t.strictInterface({
     ConnectionSuccessful = t.boolean,

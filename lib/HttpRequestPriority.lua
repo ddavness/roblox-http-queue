@@ -5,10 +5,20 @@
     SPDX-License-Identifier: MIT
 ]]
 
+local PriorityMeta = {
+    __metatable = "HttpRequestPriority",
+    __index = function(_, index)
+        error("Attempt to index non-existant value HttpRequestPriority." .. tostring(index))
+    end,
+    __eq = function(me, other)
+        return getmetatable(me) == getmetatable(other) and me.Value == other.Value
+    end
+}
+
 return setmetatable({
-    First = 1,
-    Prioritary = 2,
-    Normal = 3
+    First = setmetatable({ Value = 1 }, PriorityMeta),
+    Prioritary = setmetatable({ Value = 2 }, PriorityMeta),
+    Normal = setmetatable({ Value = 3 }, PriorityMeta)
 }, {
     __index = function(_, index)
         error(tostring(index) .. " is not a valid HttpRequestPriority!")
