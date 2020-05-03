@@ -159,25 +159,17 @@ interface HttpQueueConstructor {
     /**
      * @constructor Creates an HttpQueue
      *
-     * @param retryAfterHeader The header the queue will look for if rate limits are exceeded.
-     * Defaults to "Retry-After"
-     * @param rateLimitCapHeader The header the queue will look for to determine the global rate limit.
-     * Not all services provide this header - and that's okay.
-     * @param availableRequestsHeader The header the queue will look for to determine the available request quota.
-     * Not all services provide this header - and that's okay.
-     * @param reserveSlots How many request slots to allocate ahead of time. This will not impose a limit
-     * to the number of requests you can push to the queue - it's purely for performance reasons.
-     * @param simultaneousSendCap How many requests should be sent at the same time (maximum). Defaults to 10.
+     * @param options The options for the queue.
+     * @param options.retryAfter.header If the reqeuest is rate limited, look for this header to determine how long to wait (in seconds)
+     * @param options.retryAfter.cooldown Define a cooldown period directly
+     * @param options.maxSimultaneousSendOperations How many requests should be sent at the same time (maximum). Defaults to 10.
      *
      * @returns An empty HttpQueue
      */
-    new (
-        retryAfterHeader?: string,
-        rateLimitCapHeader?: string,
-        availableRequestsHeader?: string,
-        reserveSlots?: number | undefined,
-        simultaneousSendCap?: number | undefined,
-    ): HttpQueue;
+    new (options: {
+        retryAfter: { header: string } | { cooldown: number };
+        maxSimultaneousSendOperations?: number;
+    }): HttpQueue;
 }
 
 // Export type guards
