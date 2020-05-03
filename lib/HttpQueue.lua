@@ -63,7 +63,9 @@ function HttpQueue.new(options)
                 wait(response.Headers[header])
             end
         else
-            wait(options.retryAfter.cooldown)
+            cooldown = function()
+                wait(options.retryAfter.cooldown)
+            end
         end
 
         local function sendNode(node)
@@ -72,9 +74,9 @@ function HttpQueue.new(options)
  
                     interrupted = true
                     restart = true
-                    -- TODO: Make this dynamic
                     cooldown(response)
                     interrupted = false
+
                     sendNode(node) -- try again!
                 else
                     coroutine.resume(node.Data.Callback, response)
@@ -118,7 +120,7 @@ function HttpQueue.new(options)
 
             if restart then
                 -- LANGUAGE EXTENSION: LUAU SUPPORTS CONTINUE
-                -- continue
+                continue
             end
 
             while regularQueue.First do
