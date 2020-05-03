@@ -2,21 +2,28 @@ local Http = require(game:GetService("ServerScriptService").httpqueue)
 
 wait(5)
 
-local queue = Http.HttpQueue.new("Retry-After", "x-rate-limit-api-token-max", "x-rate-limit-api-token-remaining", 500, 10)
+local queue = Http.HttpQueue.new("Retry-After", "x-rate-limit-api-token-max", "x-rate-limit-api-token-remaining", nil, 9)
 
 local query = {
-    key = "d31703e3e5ea5587ca5800f86e407182",
-    token = "dfdc98d417379393afa6c7a222d58d207a324af514e60298bd53d1f0dc91cd85"
+    key = "YOUR KEY HERE",
+    token = "YOUR TOKEN HERE"
 }
 
-for i = 1, 50 do
+for i = 1, 300 do
     print("Pushing request " .. i)
     query.name = "Name change " .. tostring(i)
 
     local request = Http.HttpRequest.new("https://api.trello.com/1/boards/5d6f8ec6764c2112a27e3d12", "PUT", nil, query)
-    print(request.Url)
+    local promise
+    if i == 200 then
+        promise = queue:Push(request, Http.HttpRequestPriority.First)
+    elseif i >= 100 then
+        promise = queue:Push(request, Http.HttpRequestPriority.Prioritary)
+    else
+        promise = queue:Push(request)
+    end
 
-    queue:Push(request)
+    promise
         :andThen(function(response)
             print("REQUEST " .. i .. " successful!")
             print(response.StatusMessage)

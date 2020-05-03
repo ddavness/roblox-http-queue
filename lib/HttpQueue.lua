@@ -43,8 +43,6 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
         Available = availableRequestsHeader
     }
 
-    -- local mutex = datautil.newMutex()
-
     local prioritaryQueue = {}
     local regularQueue = {}
 
@@ -52,14 +50,17 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
 
     local queueExecutor = coroutine.create(function()
         local interrupted = false
+        local restart = false
         local main = coroutine.running()
         local availableWorkers = simultaneousSendCap or 10
 
         local function sendNode(node)
             node.Data.Request:Send():andThen(function(response)
                 if response.StatusCode == 429 then
-                    -- mutex.unlock()
+ 
                     interrupted = true
+                    restart = true
+                    -- TODO: Make this dynamic
                     wait(10)
                     interrupted = false
                     sendNode(node) -- try again!
@@ -83,10 +84,13 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
         end
 
         while true do
-            -- Do the prioritary queue
+            restart = false
             while prioritaryQueue.First do
                 while interrupted or availableWorkers == 0 do
                     coroutine.yield()
+                end
+                if restart then
+                    break
                 end
 
                 local node = prioritaryQueue.First
@@ -100,9 +104,16 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
                 end
             end
 
+            if restart then
+                continue
+            end
+
             while regularQueue.First do
                 while interrupted or availableWorkers == 0 do
                     coroutine.yield()
+                end
+                if restart then
+                    break
                 end
 
                 local node = regularQueue.First
@@ -116,7 +127,9 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
                 end
             end
 
-            coroutine.yield()
+            if not restart then
+                coroutine.yield()
+            end
         end
     end)
 
