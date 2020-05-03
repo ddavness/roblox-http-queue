@@ -15,7 +15,19 @@ local Promise, t = deps.Promise, deps.t
 local HttpQueue = {}
 
 local validInt = t.intersection(t.integer, t.numberPositive)
-local newHttpQueueCheck = t.strict(t.tuple(t.optional(t.string), t.optional(t.string), t.optional(t.string), t.optional(validInt), t.optional(validInt)))
+
+local newHttpQueueCheck = t.strict(t.strictInterface({
+    retryAfter = t.union(
+        t.strictInterface({
+            header = t.string
+        }),
+        t.strictInterface({
+            cooldown = validInt
+        })
+    ),
+    maxSimultaneousSendOperations = t.optional(validInt)
+}))
+
 local pushCheck = t.strict(t.tuple(guards.isHttpRequest, t.optional(guards.isHttpRequestPriority)))
 
 --[[**
@@ -26,22 +38,13 @@ local pushCheck = t.strict(t.tuple(guards.isHttpRequest, t.optional(guards.isHtt
     A queue is NOT A SILVER BULLET NEITHER A GUARANTEE of not spamming invalid requests, though. Depending on your game's
     playerbase/number of servers compared to the rate limit of the services, it might not scale well.
 
-    @param [t:String|nil] retryAfterHeader The header the queue will look for if rate limits are exceeded. Defaults to "Retry-After"
-    @param [t:String|nil] rateLimitCapHeader The header the queue will look for to determine the global rate limit. Not all services provide this header - and that's okay.
-    @param [t:String|nil] availableRequestsHeader The header the queue will look for to determine the available request quota. Not all services provide this header - and that's okay.
-    @param [t:number|nil] reserveSlots How many request slots to allocate ahead of time. This will not impose a limit to the number of requests you can push to the queue - it's purely for performance reasons.
-    @param [t:number|nil] simultaneousSendCap How many requests should be sent at the same time (maximum). Defaults to 10.
+    @param options The options for the queue.
+    @param [t:string|nil] options.retryAfter.header If the reqeuest is rate limited, look for this header to determine how long to wait (in seconds). If defined, don't provide options.retryAfter.cooldown
+    @param [t:number|nil] options.retryAfter.cooldown Define a cooldown period directly. If defined, do not define options.retryAfter.header
+    @param [t:number|nil] options.maxSimultaneousSendOperations How many requests should be sent at the same time (maximum). Defaults to 10.
 **--]]
-function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
-                       availableRequestsHeader, reserveSlots, simultaneousSendCap)
-    newHttpQueueCheck(retryAfterHeader, rateLimitCapHeader,
-        availableRequestsHeader, reserveSlots, simultaneousSendCap)
-
-    local headers = {
-        RetryAfter = retryAfterHeader or "Retry-After",
-        RateLimit = rateLimitCapHeader,
-        Available = availableRequestsHeader
-    }
+function HttpQueue.new(options)
+    newHttpQueueCheck(options)
 
     local prioritaryQueue = {}
     local regularQueue = {}
@@ -52,7 +55,16 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
         local interrupted = false
         local restart = false
         local main = coroutine.running()
-        local availableWorkers = simultaneousSendCap or 10
+        local availableWorkers = options.maxSimultaneousSendOperations or 10
+        local cooldown
+        if options.retryAfter.header then
+            local header = options.retryAfter.header
+            cooldown = function(response)
+                wait(response.Headers[header])
+            end
+        else
+            wait(options.retryAfter.cooldown)
+        end
 
         local function sendNode(node)
             node.Data.Request:Send():andThen(function(response)
@@ -61,7 +73,7 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
                     interrupted = true
                     restart = true
                     -- TODO: Make this dynamic
-                    wait(10)
+                    cooldown(response)
                     interrupted = false
                     sendNode(node) -- try again!
                 else
@@ -106,7 +118,7 @@ function HttpQueue.new(retryAfterHeader, rateLimitCapHeader,
 
             if restart then
                 -- LANGUAGE EXTENSION: LUAU SUPPORTS CONTINUE
-                continue
+                -- continue
             end
 
             while regularQueue.First do
