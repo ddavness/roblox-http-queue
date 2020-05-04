@@ -2,7 +2,12 @@ local Http = require(game:GetService("ServerScriptService").httpqueue)
 
 wait(5)
 
-local queue = Http.HttpQueue.new("Retry-After", "x-rate-limit-api-token-max", "x-rate-limit-api-token-remaining", nil, 9)
+local queue = Http.HttpQueue.new({
+    retryAfter = {
+        cooldown = 10
+    },
+    maxSimultaneousSendOperations = 10
+})
 
 local query = {
     key = "YOUR KEY HERE",
@@ -33,3 +38,7 @@ for i = 1, 300 do
             print(err)
         end)
 end
+
+wait(30)
+
+warn(queue:QueueSize())
