@@ -4,7 +4,7 @@
         "$className": "DataModel",
         "ServerScriptService": {
             "$className": "ServerScriptService",
-            "httpqueue": {
+            "HttpQueue": {
                 "$path": "lib",
                 "DependencyLoader": {
                     "$path": "DependencyLoader",

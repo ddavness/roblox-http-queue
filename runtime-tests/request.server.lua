@@ -1,4 +1,4 @@
-local Http = require(game:GetService("ServerScriptService").httpqueue)
+local Http = require(game:GetService("ServerScriptService").HttpQueue)
 
 wait(2)
 
