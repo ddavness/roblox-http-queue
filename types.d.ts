@@ -5,24 +5,7 @@
     SPDX-License-Identifier: MIT
 */
 
-/**
- * Defines the priority of a given request in the queue.
- *
- * @param First The request will be placed at the front of the prioritary queue.
- * @param Prioritary The request will be placed at the back of the prioritary queue.
- * @param Normal The request will be placed at the back of the regular queue.
- */
-
 type StringDictionary = { [k: string]: keyof string };
-
-interface HttpRequestPriority {
-    /**The request will be placed at the front of the prioritary queue. */
-    First: number;
-    /**The request will be placed at the back of the prioritary queue. */
-    Prioritary: number;
-    /**The request will be placed at the back of the regular queue. */
-    Normal: number;
-}
 
 /**
  * Defines an Http request.
@@ -178,9 +161,24 @@ declare function isHttpRequestPriority(obj: any): obj is HttpRequestPriority;
 declare function isHttpResponse(obj: any): obj is HttpResponse;
 declare function isHttpQueue(obj: any): obj is HttpQueue;
 
-declare const HttpRequest: new () => HttpRequestConstructor;
-declare const HttpQueue: new () => HttpQueueConstructor;
-declare const HttpRequestPriority: HttpRequestPriority;
+declare const HttpRequest: HttpRequestConstructor;
+declare const HttpQueue: HttpQueueConstructor;
+
+/**
+ * Defines the priority of a given request in the queue.
+ *
+ * @param First The request will be placed at the front of the prioritary queue.
+ * @param Prioritary The request will be placed at the back of the prioritary queue.
+ * @param Normal The request will be placed at the back of the regular queue.
+ */
+declare enum HttpRequestPriority {
+    /**The request will be placed at the front of the prioritary queue. */
+    First,
+    /**The request will be placed at the back of the prioritary queue. */
+    Prioritary,
+    /**The request will be placed at the back of the regular queue. */
+    Normal,
+}
 
 export {
     HttpRequest,
