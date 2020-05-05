@@ -6,6 +6,8 @@
 ]]
 
 local Priority = require(script.Parent.HttpRequestPriority)
+local newHttpResponse = require(script.Parent.HttpResponse)
+
 local datautil = require(script.Parent.DataUtils)
 local guards = require(script.Parent.TypeGuards)
 local deps = require(script.Parent.DependencyLoader)
@@ -68,31 +70,48 @@ function HttpQueue.new(options)
             end
         end
 
+        local function resolveNode(node)
+            -- Resolve the request
+            if node.Next then
+                node.Next.Prev = nil
+            end
+            node.Next = nil
+
+            -- Release resources
+            queueSize = queueSize - 1
+            availableWorkers = availableWorkers + 1
+            if coroutine.status(main) == "suspended" then
+                coroutine.resume(main)
+            end
+        end
+
+        local function httpStall()
+            -- HttpService stalled (number of requests exceeded)
+            wait(30)
+        end
+
+        local function stall(stallMethod, response)
+            interrupted = true
+            restart = true
+            stallMethod(response)
+            interrupted = false
+        end
+
         local function sendNode(node)
             node.Data.Request:Send():andThen(function(response)
                 if response.StatusCode == 429 then
- 
-                    interrupted = true
-                    restart = true
-                    cooldown(response)
-                    interrupted = false
-
+                    stall(cooldown, response)
                     sendNode(node) -- try again!
                 else
                     coroutine.resume(node.Data.Callback, response)
-
-                    -- Resolve the request
-                    if node.Next then
-                        node.Next.Prev = nil
-                    end
-                    node.Next = nil
-
-                    -- Release resources
-                    queueSize = queueSize - 1
-                    availableWorkers = availableWorkers + 1
-                    if coroutine.status(main) == "suspended" then
-                        coroutine.resume(main)
-                    end
+                end
+            end):catch(function(err)
+                -- Did we exceed the HttpService limits?
+                if err:match("Number of requests exceeded limit") then
+                    stall(httpStall)
+                    sendNode(node) -- try again!
+                else
+                    coroutine.resume(node.Data.Callback, err)
                 end
             end)
         end
@@ -116,19 +135,16 @@ function HttpQueue.new(options)
                 if not prioritaryQueue.First then
                     prioritaryQueue.Last = nil
                 end
-            end
 
-            if restart then
-                -- LANGUAGE EXTENSION: LUAU SUPPORTS CONTINUE
-                continue
+                resolveNode(node)
             end
 
             while regularQueue.First do
-                while interrupted or availableWorkers == 0 do
-                    coroutine.yield()
-                end
                 if restart then
                     break
+                end
+                while interrupted or availableWorkers == 0 do
+                    coroutine.yield()
                 end
 
                 local node = regularQueue.First
@@ -140,6 +156,8 @@ function HttpQueue.new(options)
                 if not regularQueue.First then
                     regularQueue.Last = nil
                 end
+
+                resolveNode(node)
             end
 
             if not restart then
@@ -165,7 +183,7 @@ function HttpQueue.new(options)
         local promise = Promise.async(function(resolve, reject)
             requestBody.Callback = coroutine.running()
             local response = coroutine.yield()
-            if response.ConnectionSuccessful then
+            if guards.isHttpResponse(response) then
                 resolve(response)
             else
                 reject(response)
@@ -194,8 +212,8 @@ function HttpQueue.new(options)
         @returns [t:HttpResponse] The server's response to the request.
     **--]]
     function httpQueue:AwaitPush(request, priority)
-        local _, response = self:Push(request, priority):await()
-        return response
+        local resolved, response = self:Push(request, priority):await()
+        return resolved and response or newHttpResponse(false, response)
     end
 
     --[[**
