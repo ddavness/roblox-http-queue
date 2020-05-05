@@ -32,6 +32,14 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
 
     -- Now we can assume type-safety!
     local endpoint = Url
+
+    -- Never hurts to check for this and correct
+    -- https://example.org?query1=a is invalid
+    -- https://example.org/?query1=a is not!
+    if endpoint:sub(-1, -1) ~= "/" then
+        endpoint = endpoint .. "/"
+    end
+
     if t.table(Query) then
         local queryString = "?"
         for i, v in pairs (Query) do
