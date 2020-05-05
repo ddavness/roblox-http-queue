@@ -35,7 +35,7 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
     if t.table(Query) then
         local queryString = "?"
         for i, v in pairs (Query) do
-            queryString = queryString .. i .. "=" .. tostring(v) .. "&"
+            queryString = queryString .. HttpService:UrlEncode(i) .. "=" .. HttpService:UrlEncode(tostring(v)) .. "&"
         end
         endpoint = endpoint .. queryString:sub(1, -2)
     end
