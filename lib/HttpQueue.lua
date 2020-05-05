@@ -98,21 +98,27 @@ function HttpQueue.new(options)
         end
 
         local function sendNode(node)
-            node.Data.Request:Send():andThen(function(response)
-                if response.StatusCode == 429 then
-                    stall(cooldown, response)
-                    sendNode(node) -- try again!
-                else
-                    coroutine.resume(node.Data.Callback, response)
-                end
-            end):catch(function(err)
-                -- Did we exceed the HttpService limits?
-                if err:match("Number of requests exceeded limit") then
-                    stall(httpStall)
-                    sendNode(node) -- try again!
-                else
-                    coroutine.resume(node.Data.Callback, err)
-                end
+            return Promise.async(function(resolve)
+                node.Data.Request:Send():andThen(function(response)
+                    if response.StatusCode == 429 then
+                        stall(cooldown, response)
+                        sendNode(node) -- try again!
+                    else
+                        coroutine.resume(node.Data.Callback, response)
+                    end
+
+                    resolve(node)
+                end):catch(function(err)
+                    -- Did we exceed the HttpService limits?
+                    if err:match("Number of requests exceeded limit") then
+                        stall(httpStall)
+                        sendNode(node) -- try again!
+                    else
+                        coroutine.resume(node.Data.Callback, err)
+                    end
+
+                    resolve(node)
+                end)
             end)
         end
 
@@ -128,14 +134,12 @@ function HttpQueue.new(options)
                 local node = queue.First
                 availableWorkers = availableWorkers - 1
 
-                sendNode(node)
+                sendNode(node):andThen(resolveNode)
 
                 queue.First = node.Next
                 if not queue.First then
                     queue.Last = nil
                 end
-
-                resolveNode(node)
             end
         end
 
