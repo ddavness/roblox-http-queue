@@ -116,49 +116,33 @@ function HttpQueue.new(options)
             end)
         end
 
+        local function doQueue(queue)
+            while queue.First do
+                while interrupted or availableWorkers == 0 do
+                    coroutine.yield()
+                end
+                if restart then
+                    break
+                end
+
+                local node = queue.First
+                availableWorkers = availableWorkers - 1
+
+                sendNode(node)
+
+                queue.First = node.Next
+                if not queue.First then
+                    queue.Last = nil
+                end
+
+                resolveNode(node)
+            end
+        end
+
         while true do
             restart = false
-            while prioritaryQueue.First do
-                while interrupted or availableWorkers == 0 do
-                    coroutine.yield()
-                end
-                if restart then
-                    break
-                end
-
-                local node = prioritaryQueue.First
-                availableWorkers = availableWorkers - 1
-
-                sendNode(node)
-
-                prioritaryQueue.First = node.Next
-                if not prioritaryQueue.First then
-                    prioritaryQueue.Last = nil
-                end
-
-                resolveNode(node)
-            end
-
-            while regularQueue.First do
-                if restart then
-                    break
-                end
-                while interrupted or availableWorkers == 0 do
-                    coroutine.yield()
-                end
-
-                local node = regularQueue.First
-                availableWorkers = availableWorkers - 1
-
-                sendNode(node)
-
-                regularQueue.First = node.Next
-                if not regularQueue.First then
-                    regularQueue.Last = nil
-                end
-
-                resolveNode(node)
-            end
+            doQueue(prioritaryQueue)
+            doQueue(regularQueue)
 
             if not restart then
                 coroutine.yield()
