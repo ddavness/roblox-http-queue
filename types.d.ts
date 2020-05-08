@@ -53,7 +53,7 @@ interface HttpRequestConstructor {
         Method: string,
         Query?: { [k: string]: keyof string | number | boolean } | undefined,
         Body?: string | undefined,
-        Headers?: StringDictionary | undefined,
+        Headers?: StringDictionary | undefined
     ): HttpRequest;
 }
 
@@ -177,7 +177,7 @@ declare enum HttpRequestPriority {
     /**The request will be placed at the back of the prioritary queue. */
     Prioritary,
     /**The request will be placed at the back of the regular queue. */
-    Normal,
+    Normal
 }
 
 export {
@@ -188,5 +188,5 @@ export {
     isHttpRequest,
     isHttpRequestPriority,
     isHttpResponse,
-    isHttpQueue,
+    isHttpQueue
 };

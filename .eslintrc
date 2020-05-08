@@ -22,11 +22,13 @@
             "warn",
             {
                 "semi": true,
-                "trailingComma": "all",
+                "trailingComma": "none",
                 "singleQuote": false,
                 "printWidth": 120,
                 "tabWidth": 4,
-                "useTabs": false
+                "useTabs": false,
+                "arrowParens": "always",
+                "endOfLine": "crlf"
             }
         ],
         "@typescript-eslint/array-type": [
