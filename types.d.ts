@@ -52,7 +52,7 @@ interface HttpRequestConstructor {
         Url: string,
         Method: string,
         Body?: string | undefined,
-        Query?: { [k: string]: keyof (string | number | boolean) } | undefined,
+        Query?: { [k: string]: string | number | boolean } | undefined,
         Headers?: StringDictionary | undefined
     ): HttpRequest;
 }

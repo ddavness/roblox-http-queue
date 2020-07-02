@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/http-queue",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0-rc.3b",
   "description": "A small library to queue requests for your different external services",
   "main": "lib/init.lua",
   "repository": {
