@@ -5,7 +5,7 @@
     SPDX-License-Identifier: MIT
 */
 
-type StringDictionary = { [k: string]: keyof string };
+type StringDictionary = { [k: string]: string };
 
 /**
  * Defines an Http request.
@@ -51,8 +51,8 @@ interface HttpRequestConstructor {
     new (
         Url: string,
         Method: string,
-        Query?: { [k: string]: keyof string | number | boolean } | undefined,
         Body?: string | undefined,
+        Query?: { [k: string]: keyof (string | number | boolean) } | undefined,
         Headers?: StringDictionary | undefined
     ): HttpRequest;
 }
