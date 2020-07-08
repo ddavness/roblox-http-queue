@@ -16,7 +16,7 @@ local TS = _G[script.Parent]
 
 if TS then
     -- Module was loaded via Roblox-TS
-    dependencies.Promise = TS.Promise
+    --[[dependencies.Promise = TS.Promise
 
     -- TS's promise interface is different so we have to come up with an adapter
     function dependencies.Promise.async(callback)
@@ -27,14 +27,16 @@ if TS then
         end)
 
         return promise
-    end
+    end]]
 
     dependencies.t = TS.import(script.Parent, TS.getModule(script.Parent, "t").lib.ts)
 else
     -- Load dependencies locally
-    dependencies.Promise = require(script.Promise)
     dependencies.t = require(script.t)
 end
+
+-- TEMPORARY PATCH: DONT USE ROBLOX-TS LIBRARY PROMISE (UNTIL REFACTOR IS OUT)
+dependencies.Promise = require(script.Promise)
 
 dependencies.HttpService = game:GetService("HttpService")
 
