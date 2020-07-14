@@ -33,10 +33,17 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
     -- Now we can assume type-safety!
     local endpoint = Url
 
+    local url = Url:split("://")
+    if url[1] == Url then
+        error("\"" .. Url .. "\" doesn't look like a valid Url!")
+    end
+
     -- Never hurts to check for this and correct
     -- https://example.org?query1=a is invalid
     -- https://example.org/?query1=a is not!
-    if endpoint:sub(-1, -1) ~= "/" then
+    -- We also need to check if there's already a path in the URL
+    -- e.g https://example.com/file is different from https://example.com/file/
+    if not url[2]:find("/") then
         endpoint = endpoint .. "/"
     end
 
