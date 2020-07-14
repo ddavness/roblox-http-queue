@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/http-queue",
-  "version": "1.0.0-rc.3d",
+  "version": "1.0.0",
   "description": "A small library to queue requests for your different external services",
   "main": "lib/init.lua",
   "repository": {
@@ -19,12 +19,12 @@
   },
   "types": "types.d.ts",
   "dependencies": {
-    "@rbxts/types": "^1.0.380",
+    "@rbxts/types": "^1.0.381",
     "@rbxts/t": "^1.3.1"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^3.6.0",
-    "@typescript-eslint/parser": "^3.6.0",
+    "@typescript-eslint/eslint-plugin": "^3.6.1",
+    "@typescript-eslint/parser": "^3.6.1",
     "eslint": "^7.4.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
