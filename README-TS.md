@@ -82,6 +82,35 @@ for (let i = 1; i <= 1000; i++) {
 let yielded_for_response = trelloQueue.AwaitPush(request)
 ```
 
+Depending on what service you're using, sometimes the cooldown period varies over time: When creating a new Queue, you can specify how to deal with this on the `retryAfter` option:
+
+- `{cooldown = (number)}` - If you know that the cooldown period is a fixed number of seconds.
+- `{header = (string)}` - If the cooldown time is present, in **seconds**, in a response header sent by the service.
+- `{callback = (function)}` - For all other cases. Takes the server response and returns the number of seconds that the queue should stall before sending more requests.
+
+**Examples:**
+
+```ts
+// Cooldown is fixed to 5 seconds
+const staticQueue = new HttpQueue({
+    retryAfter: {cooldown: 5}
+})
+
+// We check the "x-rate-limit-cooldown-s" header to determine how long to stall
+const headerQueue = new HttpQueue({
+    retryAfter: {header: "x-rate-limit-cooldown-s"}
+})
+
+// We use a callback to parse the response body and retrieve the cooldown period
+const callbackQueue = new HttpQueue({
+    retryAfter: {callback: (response: HttpResponse) => {
+            // Our service returns a JSON body. The cooldown period is noted in milliseconds on the "cooldown" field.
+            return game.GetService("HttpService").JSONDecode(response.Body).cooldown / 1000
+        }
+    }
+})
+```
+
 The queue works on a "first come, first serve" basis. This means that requests being pushed first will be dealt with first by the queue. (**HOWEVER, this doesn't mean the responses will arrive in order!**)
 
 You can override that behavior by passing a `priority` parameter to the `:Push()` or `:AwaitPush()` methods. There are three options available:
