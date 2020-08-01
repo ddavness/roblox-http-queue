@@ -69,9 +69,9 @@ function HttpQueue.new(options)
                 wait(response.Headers[header])
             end
         elseif options.retryAfter.cooldown then
-            local cooldown = options.retryAfter.cooldown
+            local cooldownPeriod = options.retryAfter.cooldown
             cooldown = function()
-                wait(cooldown)
+                wait(cooldownPeriod)
             end
         else
             local callback = options.retryAfter.callback
