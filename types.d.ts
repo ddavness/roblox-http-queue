@@ -145,12 +145,13 @@ interface HttpQueueConstructor {
      * @param options The options for the queue.
      * @param options.retryAfter.header If the reqeuest is rate limited, look for this header to determine how long to wait (in seconds)
      * @param options.retryAfter.cooldown Define a cooldown period directly
+     * @param options.retryAfter.callback Pass a function that takes a rate-limited response and returns the cooldown period (in seconds)
      * @param options.maxSimultaneousSendOperations How many requests should be sent at the same time (maximum). Defaults to 10.
      *
      * @returns An empty HttpQueue
      */
     new (options: {
-        retryAfter: { header: string } | { cooldown: number };
+        retryAfter: { header: string } | { cooldown: number } | { callback: (resp: HttpResponse) => number };
         maxSimultaneousSendOperations?: number;
     }): HttpQueue;
 }

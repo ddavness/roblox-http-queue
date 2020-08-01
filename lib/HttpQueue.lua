@@ -25,6 +25,9 @@ local newHttpQueueCheck = t.strict(t.strictInterface({
         }),
         t.strictInterface({
             cooldown = validInt
+        }),
+        t.strictInterface({
+            callback = t.callback
         })
     ),
     maxSimultaneousSendOperations = t.optional(validInt)
@@ -43,6 +46,7 @@ local pushCheck = t.strict(t.tuple(guards.isHttpRequest, t.optional(guards.isHtt
     @param options The options for the queue.
     @param [t:string|nil] options.retryAfter.header If the reqeuest is rate limited, look for this header to determine how long to wait (in seconds). If defined, don't provide options.retryAfter.cooldown
     @param [t:number|nil] options.retryAfter.cooldown Define a cooldown period directly. If defined, do not define options.retryAfter.header
+    @param [t:number(HttpResponse)|nil] options.retryAfter.callback Pass a function that takes a rate-limited response and returns the cooldown period (in seconds). If defined, do not define options.retryAfter.header
     @param [t:number|nil] options.maxSimultaneousSendOperations How many requests should be sent at the same time (maximum). Defaults to 10.
 **--]]
 function HttpQueue.new(options)
@@ -64,9 +68,15 @@ function HttpQueue.new(options)
             cooldown = function(response)
                 wait(response.Headers[header])
             end
-        else
+        elseif options.retryAfter.cooldown then
+            local cooldown = options.retryAfter.cooldown
             cooldown = function()
-                wait(options.retryAfter.cooldown)
+                wait(cooldown)
+            end
+        else
+            local callback = options.retryAfter.callback
+            cooldown = function(response)
+                wait(callback(response))
             end
         end
 
