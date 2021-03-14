@@ -19,17 +19,17 @@
   },
   "types": "types.d.ts",
   "dependencies": {
-    "@rbxts/types": "^1.0.385",
-    "@rbxts/t": "^1.3.4"
+    "@rbxts/t": "^2.1.1",
+    "@rbxts/types": "^1.0.462"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^3.7.1",
-    "@typescript-eslint/parser": "^3.7.1",
-    "eslint": "^7.6.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-roblox-ts": "^0.0.20",
-    "prettier": "^2.0.5"
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-roblox-ts": "^0.0.25",
+    "prettier": "^2.2.1"
   },
   "scripts": {
     "prepublishOnly": "cp vendor/Promise/lib/init.lua DependencyLoader/Promise.lua ; mv DependencyLoader/ lib/DependencyLoader/ ; mv README.md tmp.tmp ; mv README-TS.md README.md",
