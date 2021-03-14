@@ -1,5 +1,6 @@
 {
     "name": "http-queue",
+    "globIgnorePaths": ["**/*.spec.lua", "**/ts.lua"],
     "tree": {
         "$className": "DataModel",
         "ServerScriptService": {
@@ -9,10 +10,10 @@
                 "DependencyLoader": {
                     "$path": "DependencyLoader",
                     "Promise": {
-                        "$path": "vendor/Promise/lib/init.lua"
+                        "$path": "vendor/Promise/lib"
                     },
                     "t": {
-                        "$path": "vendor/t/lib/init.lua"
+                        "$path": "vendor/t/lib"
                     }
                 }
             },
