@@ -17,7 +17,7 @@ local TS = _G[script.Parent]
 if TS then
     -- Module was loaded via Roblox-TS
     dependencies.Promise = TS.Promise
-    dependencies.t = TS.import(script.Parent, TS.getModule(script.Parent, "t").lib.ts)
+    dependencies.t = TS.import(script.Parent, TS.getModule(script.Parent, "t").lib.ts).t
 else
     -- Load dependencies locally
     dependencies.Promise = require(script.Promise)
