@@ -32,8 +32,8 @@
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "prepublishOnly": "cp vendor/Promise/lib/init.lua DependencyLoader/Promise.lua ; mv DependencyLoader/ lib/DependencyLoader/ ; mv README.md tmp.tmp ; mv README-TS.md README.md",
-    "postpublish": "mv lib/DependencyLoader/ DependencyLoader/ ; rm DependencyLoader/Promise.lua ; mv README.md README-TS.md ; mv tmp.tmp README.md"
+    "prepublishOnly": "mv DependencyLoader/ lib/DependencyLoader/ ; mv README.md tmp.tmp ; mv README-TS.md README.md",
+    "postpublish": "mv lib/DependencyLoader/ DependencyLoader/ ; mv README.md README-TS.md ; mv tmp.tmp README.md"
   },
   "files": [
     "lib",

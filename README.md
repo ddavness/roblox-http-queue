@@ -1,7 +1,5 @@
 # Roblox Http Queue
 
-**For help and updates, join our [Discord server!](https://discord.gg/RBhP6Ad)**
-
 ## Current version: `v1.1.0`
 
 Writing code to make requests is simple, and maybe fun. Writing code that gracefully handles everything that can go wrong in a request... Well, that's a boring thing to do.
@@ -27,6 +25,8 @@ Use `npm`:
 ```
 npm install @rbxts/http-queue
 ```
+
+> A more comprehensive guide for Roblox-TS users can be read [here](./README-TS.md).
 
 ## Usage
 
