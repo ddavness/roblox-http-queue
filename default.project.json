@@ -8,7 +8,7 @@
             "HttpQueue": {
                 "$path": "lib",
                 "DependencyLoader": {
-                    "$path": "DependencyLoader",
+                    "$path": "lib/DependencyLoader",
                     "Promise": {
                         "$path": "vendor/Promise/lib"
                     },

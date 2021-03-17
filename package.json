@@ -31,10 +31,6 @@
     "eslint-plugin-roblox-ts": "^0.0.25",
     "prettier": "^2.2.1"
   },
-  "scripts": {
-    "prepublishOnly": "mv DependencyLoader/ lib/DependencyLoader/ ; mv README.md tmp.tmp ; mv README-TS.md README.md",
-    "postpublish": "mv lib/DependencyLoader/ DependencyLoader/ ; mv README.md README-TS.md ; mv tmp.tmp README.md"
-  },
   "files": [
     "lib",
     "types.d.ts",
