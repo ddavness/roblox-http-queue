@@ -1,6 +1,6 @@
 # Roblox Http Queue
 
-## Current version: `v1.1.0`
+## Current version: `v1.1.1`
 
 Writing code to make requests is simple, and maybe fun. Writing code that gracefully handles everything that can go wrong in a request... Well, that's a boring thing to do.
 
