@@ -5,16 +5,10 @@
         "$className": "DataModel",
         "ServerScriptService": {
             "$className": "ServerScriptService",
-            "HttpQueue": {
-                "$path": "lib",
-                "DependencyLoader": {
-                    "$path": "lib/DependencyLoader",
-                    "Promise": {
-                        "$path": "vendor/Promise/lib"
-                    },
-                    "t": {
-                        "$path": "vendor/t/lib"
-                    }
+            "Packages": {
+                "$path": "Packages",
+                "HttpQueue": {
+                    "$path": "lib"
                 }
             },
             "tests": {
