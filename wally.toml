@@ -1,0 +1,14 @@
+[package]
+name = "ddavness/http-queue"
+description = "A library that allows for custom events to be created for custom OOP implementations. Attempts to reproduce Roblox's syntax as closely as possible while also adding more features."
+version = "1.1.2"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "server"
+authors = ["David Duque <david@duqued.net>"]
+license = "MIT"
+exclude = ["*"]
+include = ["lib/", "LICENSE", "README.md", "wally.toml"]
+
+[dependencies]
+t = "osyrisrblx/t@3.0.0"
+Promise = "evaera/promise@4.0.0"
