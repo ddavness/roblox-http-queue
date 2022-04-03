@@ -10,7 +10,7 @@ local newHttpResponse = require(script.Parent.HttpResponse)
 
 local datautil = require(script.Parent.DataUtils)
 local guards = require(script.Parent.TypeGuards)
-local deps = require(script.Parent.DependencyLoader)
+local deps = require(script.Parent.DependencySource)
 
 local Promise, t = deps.Promise, deps.t
 

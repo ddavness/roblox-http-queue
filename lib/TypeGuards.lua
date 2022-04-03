@@ -5,7 +5,7 @@
     SPDX-License-Identifier: MIT
 ]]
 
-local t = require(script.Parent.DependencyLoader).t
+local t = require(script.Parent.DependencySource).t
 
 local guards = {}
 

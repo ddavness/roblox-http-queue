@@ -5,7 +5,7 @@
     SPDX-License-Identifier: MIT
 ]]
 
-local deps = require(script.Parent.DependencyLoader)
+local deps = require(script.Parent.DependencySource)
 local newHttpResponse = require(script.Parent.HttpResponse)
 local HttpService, Promise, t = deps.HttpService, deps.Promise, deps.t
 
