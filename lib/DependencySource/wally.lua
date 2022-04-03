@@ -1,5 +1,5 @@
 --[[
-    File: http-queue/DependencySource.lua
+    File: http-queue/DependencySource/wally.lua
     Description: Loads runtime dependencies. This file is bundled on the Wally package only
 
     SPDX-License-Identifier: MIT

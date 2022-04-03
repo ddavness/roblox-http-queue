@@ -1,5 +1,5 @@
 --[[
-    File: http-queue/DependencySource.lua
+    File: http-queue/DependencySource/ts.lua
     Description: Loads runtime dependencies. This file is bundled on the NPM distribution only
 
     SPDX-License-Identifier: MIT
