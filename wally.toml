@@ -7,7 +7,7 @@ realm = "server"
 authors = ["David Duque <david@duqued.net>"]
 license = "MIT"
 exclude = ["*"]
-include = ["lib/", "LICENSE", "README.md", "wally.toml", "default.project.json"]
+include = ["lib*", "LICENSE.md", "README.md", "wally.toml", "default.project.json"]
 
 [dependencies]
 t = "osyrisrblx/t@3.0.0"
