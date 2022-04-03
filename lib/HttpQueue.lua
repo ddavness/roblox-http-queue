@@ -91,7 +91,7 @@ function HttpQueue.new(options)
             queueSize = queueSize - 1
             availableWorkers = availableWorkers + 1
             if coroutine.status(main) == "suspended" then
-                coroutine.resume(main)
+                task.spawn(main)
             end
         end
 
@@ -114,7 +114,7 @@ function HttpQueue.new(options)
                         stall(cooldown, response)
                         sendNode(node) -- try again!
                     else
-                        coroutine.resume(node.Data.Callback, response)
+                        task.spawn(node.Data.Callback, response)
                     end
 
                     resolve(node)
@@ -124,7 +124,7 @@ function HttpQueue.new(options)
                         stall(httpStall)
                         sendNode(node) -- try again!
                     else
-                        coroutine.resume(node.Data.Callback, err)
+                        task.spawn(node.Data.Callback, err)
                     end
 
                     resolve(node)
@@ -197,7 +197,7 @@ function HttpQueue.new(options)
         end
         queueSize = queueSize + 1
 
-        coroutine.resume(queueExecutor)
+        task.spawn(queueExecutor)
         return promise
     end
 

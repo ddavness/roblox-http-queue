@@ -8,6 +8,9 @@
             "HttpQueue": {
                 "$path": "lib"
             },
+            "Packages": {
+                "$path": "Packages"
+            },
             "tests": {
                 "$path": "runtime-tests"
             }
