@@ -1,5 +1,5 @@
 {
-    "name": "HttpQueue",
+    "name": "http-queue",
     "tree": {
         "$path": "lib"
     }
