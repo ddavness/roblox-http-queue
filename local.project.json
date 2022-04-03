@@ -1,15 +1,12 @@
 {
     "name": "http-queue",
-    "globIgnorePaths": ["**/*.spec.lua", "**/ts.lua"],
+    "globIgnorePaths": ["**/*.spec.lua", "lib/DependencySource/*.lua", "!lib/DependencySource/init.lua"],
     "tree": {
         "$className": "DataModel",
         "ServerScriptService": {
             "$className": "ServerScriptService",
-            "Packages": {
-                "$path": "Packages",
-                "HttpQueue": {
-                    "$path": "lib"
-                }
+            "HttpQueue": {
+                "$path": "lib"
             },
             "tests": {
                 "$path": "runtime-tests"
