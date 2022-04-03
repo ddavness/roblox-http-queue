@@ -1,7 +1,7 @@
 # Roblox Http Queue (for Roblox-TS)
 ## `@rbxts/http-queue`
 
-## Current version: `v1.1.3`
+## Current version: `v1.1.5`
 
 Writing code to make requests is simple, and maybe fun. Writing code that gracefully handles everything that can go wrong in a request... Well, that's a boring thing to do.
 
