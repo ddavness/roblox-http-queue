@@ -1,7 +1,7 @@
 [package]
 name = "ddavness/http-queue"
 description = "A library that lets you send HTTP requests to external services while respecting their rate limits."
-version = "1.1.5"
+version = "1.1.6"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "server"
 authors = ["David Duque <david@duqued.net>"]
