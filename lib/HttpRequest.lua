@@ -31,6 +31,11 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
     requestCheck(Url, Method, Body, Query, Headers)
 
     -- Now we can assume type-safety!
+
+    if Method == "GET" or Method == "HEAD" then
+        Body = nil
+    end
+
     local endpoint = Url
 
     local url = Url:split("://")
@@ -71,7 +76,7 @@ function HttpRequest.new(Url, Method, Body, Query, Headers)
                 Url = endpoint,
                 Method = Method,
                 Headers = Headers,
-                Body = (Method == "GET" or Method == "HEAD") and nil or Body
+                Body = Body
             })
         end)
 
